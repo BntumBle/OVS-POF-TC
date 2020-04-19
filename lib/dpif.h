@@ -655,7 +655,7 @@ struct dpif_flow_put {
  * the 'key_len' bytes starting at 'key', or the unique identifier 'ufid'. If
  * the flow was created using 'ufid', then 'ufid' must be specified to delete
  * the flow. If both are specified, 'key' will be ignored for flow deletion.
- * Succeeds with status 0 if the flow is deleted, or fails with ENOENT if the
+ * Succeeds with status 0 if the flow jjjis deleted, or fails with ENOENT if the
  * dpif does not contain such a flow.
  *
  * Callers should always provide the 'key' to improve dpif logging in the event

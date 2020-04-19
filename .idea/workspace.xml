@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
-    <generated />
+    <generated>
+      <config projectName="OpenvSwitch_pof" targetName="OpenvSwitch_pof" />
+    </generated>
   </component>
   <component name="CMakeSettings">
     <configurations>
@@ -9,8 +11,12 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="41b90477-9a3f-411d-a20a-31ec0f8d1c3f" name="Default" comment="">
+    <list default="true" id="41b90477-9a3f-411d-a20a-31ec0f8d1c3f" name="Default" comment="commit test">
+      <change afterPath="$PROJECT_DIR$/lib/netdev-offload-provider.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/netdev-offload.c" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/lib/netdev-offload.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/dpif.h" beforeDir="false" afterPath="$PROJECT_DIR$/lib/dpif.h" afterDir="false" />
     </list>
     <list id="343c7e70-7a97-41f9-90e4-d00cdbf66b8e" name="modify Makefile.am/EXTRA_DIST to enable make" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -22,6 +28,7 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="RESET_MODE" value="HARD" />
@@ -52,7 +59,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="CMake Application.OpenvSwitch_pof">
     <configuration default="true" type="BashConfigurationType" factoryName="Bash">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="INTERPRETER_PATH" value="/bin/bash" />
@@ -65,6 +72,11 @@
       <method />
     </configuration>
     <configuration name="Build All" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" CONFIG_NAME="Debug" EXPLICIT_BUILD_TARGET_NAME="all">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="OpenvSwitch_pof" type="CMakeRunConfiguration" factoryName="Application" PASS_PARENT_ENVS_2="true" PROJECT_NAME="OpenvSwitch_pof" TARGET_NAME="OpenvSwitch_pof" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="OpenvSwitch_pof" RUN_TARGET_NAME="OpenvSwitch_pof">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -127,6 +139,10 @@
       <option name="_new_targetType" value="&quot;PATH&quot;" />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="CMake Application.Build All" />
+      <item itemvalue="CMake Application.OpenvSwitch_pof" />
+    </list>
   </component>
   <component name="SvnConfiguration">
     <configuration />
@@ -181,7 +197,18 @@
       <workItem from="1552698191527" duration="10033000" />
       <workItem from="1555550118472" duration="4952000" />
       <workItem from="1586226571803" duration="641000" />
+      <workItem from="1586693336557" duration="3070000" />
+      <workItem from="1587276519726" duration="2242000" />
+      <workItem from="1587279150665" duration="4511000" />
     </task>
+    <task id="LOCAL-00001" summary="commit test">
+      <created>1586693419153</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1586693419153</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -210,5 +237,19 @@
         </entry>
       </map>
     </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="commit test" />
+    <option name="LAST_COMMIT_MESSAGE" value="commit test" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/lib/netdev-offload-provider.h</url>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
