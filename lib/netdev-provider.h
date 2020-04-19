@@ -21,6 +21,7 @@
 
 #include "connectivity.h"
 #include "netdev.h"
+#include "netdev-offload.h"
 #include "openvswitch/list.h"
 #include "ovs-numa.h"
 #include "packets.h"
@@ -75,6 +76,11 @@ struct netdev {
     int ref_cnt;                        /* Times this devices was opened. */
     struct shash_node *node;            /* Pointer to element in global map. */
     struct ovs_list saved_flags_list; /* Contains "struct netdev_saved_flags". */
+
+    /* modify by zq */
+    /* Functions to control flow offloading. */
+    OVSRCU_TYPE(const struct netdev_flow_api *) flow_api;
+    struct netdev_hw_info hw_info;	/* offload-capable netdev info */
 };
 
 static inline void
@@ -764,6 +770,11 @@ struct netdev_class {
 
     /* Discards all packets waiting to be received from 'rx'. */
     int (*rxq_drain)(struct netdev_rxq *rx);
+
+    /* modify by zq*/
+    /* Get a block_id from the netdev.
+    * Returns the block_id or 0 if none exists for netdev. */
+    uint32_t (*get_block_id)(struct netdev *);
 };
 
 int netdev_register_provider(const struct netdev_class *);

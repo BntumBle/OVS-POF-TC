@@ -508,6 +508,32 @@ struct dpif_flow_stats {
     uint16_t sel_group_table_flags;   /* Extended by tsf. */
 };
 
+/* more statistics info for offloaded packets and bytes */
+/* modify by zq*/
+struct dpif_flow_detailed_stats {
+    uint64_t n_packets;
+    uint64_t n_bytes;
+    /* n_offload_packets are a subset of n_packets */
+    uint64_t n_offload_packets;
+    /* n_offload_bytes are a subset of n_bytes */
+    uint64_t n_offload_bytes;
+    long long int used;
+    uint16_t tcp_flags;
+};
+
+/* modify by zq*/
+struct dpif_flow_attrs {
+    bool offloaded;            /* True if flow is offloaded to HW. */
+    const char *dp_layer;      /* DP layer the flow is handled in. */
+    const char *dp_extra_info; /* Extra information provided by DP. */
+};
+
+/* modify by zq*/
+struct dpif_flow_dump_types {
+    bool ovs_flows;
+    bool netdev_flows;
+};
+
 void dpif_flow_stats_extract(const struct flow *, const struct dp_packet *packet,
                              long long int used, struct dpif_flow_stats *);
 void dpif_flow_stats_format(const struct dpif_flow_stats *, struct ds *);
@@ -655,7 +681,7 @@ struct dpif_flow_put {
  * the 'key_len' bytes starting at 'key', or the unique identifier 'ufid'. If
  * the flow was created using 'ufid', then 'ufid' must be specified to delete
  * the flow. If both are specified, 'key' will be ignored for flow deletion.
- * Succeeds with status 0 if the flow jjjis deleted, or fails with ENOENT if the
+ * Succeeds with status 0 if the flow is deleted, or fails with ENOENT if the
  * dpif does not contain such a flow.
  *
  * Callers should always provide the 'key' to improve dpif logging in the event
