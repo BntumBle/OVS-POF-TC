@@ -11,12 +11,9 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="41b90477-9a3f-411d-a20a-31ec0f8d1c3f" name="Default" comment="modify">
+    <list default="true" id="41b90477-9a3f-411d-a20a-31ec0f8d1c3f" name="Default" comment="add netdev-offload.c but need modify">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/dpif.h" beforeDir="false" afterPath="$PROJECT_DIR$/lib/dpif.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/flow.h" beforeDir="false" afterPath="$PROJECT_DIR$/lib/flow.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/netdev-offload.c" beforeDir="false" afterPath="$PROJECT_DIR$/lib/netdev-offload.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/netdev-provider.h" beforeDir="false" afterPath="$PROJECT_DIR$/lib/netdev-provider.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/netdev-offload-provider.h" beforeDir="false" afterPath="$PROJECT_DIR$/lib/netdev-offload-provider.h" afterDir="false" />
     </list>
     <list id="343c7e70-7a97-41f9-90e4-d00cdbf66b8e" name="modify Makefile.am/EXTRA_DIST to enable make" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -200,7 +197,7 @@
       <workItem from="1586693336557" duration="3070000" />
       <workItem from="1587276519726" duration="2242000" />
       <workItem from="1587279150665" duration="5995000" />
-      <workItem from="1587289474929" duration="9606000" />
+      <workItem from="1587289474929" duration="9942000" />
     </task>
     <task id="LOCAL-00001" summary="commit test">
       <created>1586693419153</created>
@@ -216,7 +213,14 @@
       <option name="project" value="LOCAL" />
       <updated>1587283677396</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="add netdev-offload.c but need modify">
+      <created>1587307525764</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1587307525764</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -249,16 +253,7 @@
   <component name="VcsManagerConfiguration">
     <MESSAGE value="commit test" />
     <MESSAGE value="modify" />
-    <option name="LAST_COMMIT_MESSAGE" value="modify" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/lib/netdev-offload-provider.h</url>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="add netdev-offload.c but need modify" />
+    <option name="LAST_COMMIT_MESSAGE" value="add netdev-offload.c but need modify" />
   </component>
 </project>
