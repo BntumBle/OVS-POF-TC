@@ -831,4 +831,4 @@ add_executable(OpenvSwitch_pof
         vswitchd/system-stats.h
         vswitchd/xenserver.c
         vswitchd/xenserver.h
-        vtep/vtep-ctl.c lib/tc.h lib/tc.c lib/netdev-offload-tc.c lib/netdev-offload-tc.h)
+        vtep/vtep-ctl.c lib/tc.h lib/netdev-offload-tc.c lib/netdev-offload-tc.h lib/tc.c)

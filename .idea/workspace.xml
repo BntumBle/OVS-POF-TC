@@ -11,12 +11,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="41b90477-9a3f-411d-a20a-31ec0f8d1c3f" name="Default" comment="add netdev-offload-provider.h">
+    <list default="true" id="41b90477-9a3f-411d-a20a-31ec0f8d1c3f" name="Default" comment="add tc.c">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/netdev-offload-tc.c" beforeDir="false" afterPath="$PROJECT_DIR$/lib/netdev-offload-tc.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/netdev-offload-tc.h" beforeDir="false" afterPath="$PROJECT_DIR$/lib/netdev-offload-tc.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/tc.c" beforeDir="false" afterPath="$PROJECT_DIR$/lib/tc.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/tc.h" beforeDir="false" afterPath="$PROJECT_DIR$/lib/tc.h" afterDir="false" />
     </list>
     <list id="343c7e70-7a97-41f9-90e4-d00cdbf66b8e" name="modify Makefile.am/EXTRA_DIST to enable make" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -206,6 +204,8 @@
       <workItem from="1587961842680" duration="4457000" />
       <workItem from="1587969436199" duration="366000" />
       <workItem from="1587969820483" duration="2898000" />
+      <workItem from="1587974138006" duration="674000" />
+      <workItem from="1587975192635" duration="128000" />
     </task>
     <task id="LOCAL-00001" summary="commit test">
       <created>1586693419153</created>
@@ -270,6 +270,7 @@
     <MESSAGE value="modify" />
     <MESSAGE value="add netdev-offload.c but need modify" />
     <MESSAGE value="add netdev-offload-provider.h" />
-    <option name="LAST_COMMIT_MESSAGE" value="add netdev-offload-provider.h" />
+    <MESSAGE value="add tc.c" />
+    <option name="LAST_COMMIT_MESSAGE" value="add tc.c" />
   </component>
 </project>
