@@ -1,7 +1,3 @@
-//
-// Created by root
-//
-
 #ifndef TC_H
 #define TC_H 1
 
