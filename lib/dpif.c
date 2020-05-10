@@ -99,7 +99,7 @@ static void log_flow_message(const struct dpif *dpif, int error,
 static void log_operation(const struct dpif *, const char *operation,
                           int error);
 static bool should_log_flow_message(int error);
-static void log_flow_put_message(struct dpif *, const struct dpif_flow_put *,
+/*static void log_flow_put_message(struct dpif *, const struct vlog_module *,const struct dpif_flow_put *,
                                  int error);
 static void log_flow_del_message(struct dpif *, const struct dpif_flow_del *,
                                  int error);
@@ -107,7 +107,7 @@ static void log_execute_message(struct dpif *, const struct dpif_execute *,
                                 bool subexecute, int error);
 static void log_flow_get_message(const struct dpif *,
                                  const struct dpif_flow_get *, int error);
-
+*/
 /* Incremented whenever tnl route, arp, etc changes. */
 struct seq *tnl_conf_seq;
 
@@ -1276,7 +1276,7 @@ dpif_operate(struct dpif *dpif, struct dpif_op **ops, size_t n_ops)
                     struct dpif_flow_put *put = &op->u.flow_put;
 
                     COVERAGE_INC(dpif_flow_put);
-                    log_flow_put_message(dpif, put, error);
+                    log_flow_put_message(dpif, &this_module, put, 0);
                     if (error && put->stats) {
                         memset(put->stats, 0, sizeof *put->stats);
                     }
@@ -1660,8 +1660,10 @@ log_flow_message(const struct dpif *dpif, int error, const char *operation,
     ds_destroy(&ds);
 }
 
-static void
-log_flow_put_message(struct dpif *dpif, const struct dpif_flow_put *put,
+void
+log_flow_put_message(const struct dpif *dpif,
+                     const struct vlog_module *module,
+                     const struct dpif_flow_put *put,
                      int error)
 {
     if (should_log_flow_message(error) && !(put->flags & DPIF_FP_PROBE)) {
@@ -1686,8 +1688,10 @@ log_flow_put_message(struct dpif *dpif, const struct dpif_flow_put *put,
     }
 }
 
-static void
-log_flow_del_message(struct dpif *dpif, const struct dpif_flow_del *del,
+void
+log_flow_del_message(const struct dpif *dpif,
+                     const struct vlog_module *module,
+                     const struct dpif_flow_del *del,
                      int error)
 {
     if (should_log_flow_message(error)) {
@@ -1714,8 +1718,10 @@ log_flow_del_message(struct dpif *dpif, const struct dpif_flow_del *del,
  *
  * It would still be better to avoid the potential problem.  I don't know of a
  * good way to do that, though, that isn't expensive. */
-static void
-log_execute_message(struct dpif *dpif, const struct dpif_execute *execute,
+void
+log_execute_message(const struct dpif *dpif,
+                    const struct vlog_module *module,
+                    const struct dpif_execute *execute,
                     bool subexecute, int error)
 {
     if (!(error ? VLOG_DROP_WARN(&error_rl) : VLOG_DROP_DBG(&dpmsg_rl))
@@ -1742,8 +1748,10 @@ log_execute_message(struct dpif *dpif, const struct dpif_execute *execute,
     }
 }
 
-static void
-log_flow_get_message(const struct dpif *dpif, const struct dpif_flow_get *get,
+void
+log_flow_get_message(const struct dpif *dpif,
+                     const struct vlog_module *module,
+                     const struct dpif_flow_get *get,
                      int error)
 {
     if (should_log_flow_message(error)) {

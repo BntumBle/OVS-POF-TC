@@ -23,6 +23,7 @@
 #include <netinet/ip6.h>
 #include <stdlib.h>
 #include <string.h>
+#include <linux/compat/include/linux/openvswitch.h>
 
 #include "dp-packet.h"
 #include "dpif.h"

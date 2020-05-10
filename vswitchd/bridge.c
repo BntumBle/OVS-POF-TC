@@ -18,6 +18,7 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <stdlib.h>
+#include <netdev-offload.h>
 
 #include "async-append.h"
 #include "bfd.h"
@@ -2896,7 +2897,9 @@ bridge_run(void)
     }
     cfg = ovsrec_open_vswitch_first(idl);
 
+    /*modify by zq*/
     if (cfg) {
+        netdev_set_flow_api_enabled(&cfg->other_config);
         dpdk_init(&cfg->other_config);
     }
 

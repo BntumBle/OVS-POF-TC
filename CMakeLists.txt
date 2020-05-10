@@ -15,6 +15,9 @@ include_directories(datapath-windows/include)
 include_directories(datapath-windows/ovsext)
 include_directories(datapath-windows/ovsext/Netlink)
 include_directories(include)
+include_directories(include/linux)
+include_directories(include/linux/netfilter)
+include_directories(include/linux/tc_act)
 include_directories(include/openflow)
 include_directories(include/openvswitch)
 include_directories(include/ovn)
@@ -234,6 +237,15 @@ add_executable(OpenvSwitch_pof
         datapath-windows/ovsext/Vport.h
         datapath-windows/ovsext/Vxlan.c
         datapath-windows/ovsext/Vxlan.h
+        include/linux/netfilter/nf_conntrack_sctp.h
+        include/linux/tc_act/tc_ct.h
+        include/linux/tc_act/tc_mpls.h
+        include/linux/tc_act/tc_pedit.h
+        include/linux/tc_act/tc_skbedit.h
+        include/linux/tc_act/tc_tunnel_key.h
+        include/linux/tc_act/tc_vlan.h
+        include/linux/netlink.h
+        include/linux/pkt_cls.h
         include/openflow/intel-ext.h
         include/openflow/netronome-ext.h
         include/openflow/nicira-ext.h
@@ -831,4 +843,4 @@ add_executable(OpenvSwitch_pof
         vswitchd/system-stats.h
         vswitchd/xenserver.c
         vswitchd/xenserver.h
-        vtep/vtep-ctl.c lib/tc.h lib/netdev-offload-tc.c lib/netdev-offload-tc.h lib/tc.c)
+        vtep/vtep-ctl.c lib/netnsid.h lib/odp-netlink.h)

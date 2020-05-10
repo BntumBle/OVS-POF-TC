@@ -25,6 +25,9 @@
 #include <netinet/ip6.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
+#include <glob.h>
+#include <linux/compat/include/linux/openvswitch.h>
 
 #include "byte-order.h"
 #include "coverage.h"
@@ -5262,6 +5265,61 @@ odp_flow_key_to_mask(const struct nlattr *mask_key, size_t mask_key_len,
     }
 }
 
+/*add by zq*/
+/* Converts the netlink formated key/mask to match.
+ * Fails if odp_flow_key_from_key/mask and odp_flow_key_key/mask
+ * disagree on the acceptable form of flow */
+int
+parse_key_and_mask_to_match(const struct nlattr *key, size_t key_len,
+                            const struct nlattr *mask, size_t mask_len,
+                            struct match *match)
+{
+    enum odp_key_fitness fitness;
+
+    fitness = odp_flow_key_to_flow(key, key_len, &match->flow);
+    if (fitness) {
+        /* This should not happen: it indicates that
+         * odp_flow_key_from_flow() and odp_flow_key_to_flow() disagree on
+         * the acceptable form of a flow.  Log the problem as an error,
+         * with enough details to enable debugging. */
+        static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(1, 5);
+
+        if (!VLOG_DROP_ERR(&rl)) {
+            struct ds s;
+
+            ds_init(&s);
+            odp_flow_format(key, key_len, NULL, 0, NULL, &s, true);
+            VLOG_ERR("internal error parsing flow key %s", ds_cstr(&s));
+            ds_destroy(&s);
+        }
+
+        return EINVAL;
+    }
+
+    fitness = odp_flow_key_to_mask(mask, mask_len, &match->wc, &match->flow);
+    if (fitness) {
+        /* This should not happen: it indicates that
+         * odp_flow_key_from_mask() and odp_flow_key_to_mask()
+         * disagree on the acceptable form of a mask.  Log the problem
+         * as an error, with enough details to enable debugging. */
+        static struct vlog_rate_limit rl = VLOG_RATE_LIMIT_INIT(1, 5);
+
+        if (!VLOG_DROP_ERR(&rl)) {
+            struct ds s;
+
+            ds_init(&s);
+            odp_flow_format(key, key_len, mask, mask_len, NULL, &s,
+                            true);
+            VLOG_ERR("internal error parsing flow mask %s (%s)",
+                     ds_cstr(&s), odp_key_fitness_to_string(fitness));
+            ds_destroy(&s);
+        }
+
+        return EINVAL;
+    }
+
+    return 0;
+}
 /* Returns 'fitness' as a string, for use in debug messages. */
 const char *
 odp_key_fitness_to_string(enum odp_key_fitness fitness)
@@ -5328,6 +5386,31 @@ odp_put_userspace_action(uint32_t pid,
     return userdata_ofs;
 }
 
+/*add by zq*/
+void
+odp_put_pop_eth_action(struct ofpbuf *odp_actions)
+{
+    nl_msg_put_flag(odp_actions, OVS_ACTION_ATTR_POP_ETH);
+}
+
+void
+odp_put_push_eth_action(struct ofpbuf *odp_actions,
+                        const struct eth_addr *eth_src,
+                        const struct eth_addr *eth_dst)
+{
+    struct ovs_action_push_eth eth;
+
+    memset(&eth, 0, sizeof eth);
+    if (eth_src) {
+        eth.addresses.eth_src = *eth_src;
+    }
+    if (eth_dst) {
+        eth.addresses.eth_dst = *eth_dst;
+    }
+
+    nl_msg_put_unspec(odp_actions, OVS_ACTION_ATTR_PUSH_ETH,
+                      &eth, sizeof eth);
+}
 void
 odp_put_tunnel_action(const struct flow_tnl *tunnel,
                       struct ofpbuf *odp_actions)

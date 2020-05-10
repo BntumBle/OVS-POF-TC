@@ -602,6 +602,7 @@ void dpif_flow_dump_thread_destroy(struct dpif_flow_dump_thread *);
 
 #define PMD_ID_NULL OVS_CORE_UNSPEC
 
+/* modify by zq8?
 /* A datapath flow as dumped by dpif_flow_dump_next(). */
 struct dpif_flow {
     const struct nlattr *key;     /* Flow key, as OVS_KEY_ATTR_* attrs. */
@@ -614,6 +615,7 @@ struct dpif_flow {
     bool ufid_present;            /* True if 'ufid' was provided by datapath.*/
     unsigned pmd_id;              /* Datapath poll mode driver id. */
     struct dpif_flow_stats stats; /* Flow statistics. */
+    struct dpif_flow_attrs attrs; /* Flow attributes. */
 };
 int dpif_flow_dump_next(struct dpif_flow_dump_thread *,
                         struct dpif_flow *flows, int max_flows);
@@ -633,6 +635,12 @@ enum dpif_op_type {
     DPIF_OP_FLOW_GET,
 };
 
+/* offload_type argument types to (*operate) interface */
+enum dpif_offload_type {
+    DPIF_OFFLOAD_AUTO,         /* Offload if possible, fallback to software. */
+    DPIF_OFFLOAD_NEVER,        /* Never offload to hardware. */
+    DPIF_OFFLOAD_ALWAYS,       /* Always offload to hardware. */
+};
 /* Add or modify a flow.
  *
  * The flow is specified by the Netlink attributes with types OVS_KEY_ATTR_* in
@@ -888,6 +896,35 @@ int dpif_queue_to_priority(const struct dpif *, uint32_t queue_id,
 
 char *dpif_get_dp_version(const struct dpif *);
 bool dpif_supports_tnl_push_pop(const struct dpif *);
+
+/*add by zq*/
+/* Log functions. */
+struct vlog_module;
+
+void log_flow_message(const struct dpif *dpif, int error,
+                      const struct vlog_module *module,
+                      const char *operation,
+                      const struct nlattr *key, size_t key_len,
+                      const struct nlattr *mask, size_t mask_len,
+                      const ovs_u128 *ufid,
+                      const struct dpif_flow_stats *stats,
+                      const struct nlattr *actions, size_t actions_len);
+void log_flow_put_message(const struct dpif *,
+                          const struct vlog_module *,
+                          const struct dpif_flow_put *,
+                          int error);
+void log_flow_del_message(const struct dpif *,
+                          const struct vlog_module *,
+                          const struct dpif_flow_del *,
+                          int error);
+void log_execute_message(const struct dpif *,
+                         const struct vlog_module *,
+                         const struct dpif_execute *,
+                         bool subexecute, int error);
+void log_flow_get_message(const struct dpif *,
+                          const struct vlog_module *,
+                          const struct dpif_flow_get *,
+                          int error);
 #ifdef  __cplusplus
 }
 #endif
