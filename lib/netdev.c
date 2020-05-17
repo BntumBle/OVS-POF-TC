@@ -29,6 +29,10 @@
 #include <net/if.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
+#include <stddef.h>
+#include <glob.h>
+#include <openvswitch/ofp-print.h>
+
 #endif
 
 #include "cmap.h"
@@ -54,6 +58,7 @@
 #include "openvswitch/vlog.h"
 #include "flow.h"
 #include "util.h"
+#include "netdev-offload-provider.h"
 
 VLOG_DEFINE_THIS_MODULE(netdev);
 
@@ -61,6 +66,8 @@ COVERAGE_DEFINE(netdev_received);
 COVERAGE_DEFINE(netdev_sent);
 COVERAGE_DEFINE(netdev_add_router);
 COVERAGE_DEFINE(netdev_get_stats);
+COVERAGE_DEFINE(netdev_send_prepare_drops);
+COVERAGE_DEFINE(netdev_push_header_drops);
 
 struct netdev_saved_flags {
     struct netdev *netdev;
@@ -117,6 +124,13 @@ netdev_is_pmd(const struct netdev *netdev)
     return netdev->netdev_class->is_pmd;
 }
 
+bool
+netdev_has_tunnel_push_pop(const struct netdev *netdev)
+{
+    return netdev->netdev_class->push_header
+           && netdev->netdev_class->pop_header;
+}
+
 static void
 netdev_initialize(void)
     OVS_EXCLUDED(netdev_mutex)
@@ -133,6 +147,8 @@ netdev_initialize(void)
         netdev_register_provider(&netdev_internal_class);
         netdev_register_provider(&netdev_tap_class);
         netdev_vport_tunnel_register();
+
+        netdev_register_flow_api_provider(&netdev_offload_tc);
 #endif
 #if defined(__FreeBSD__) || defined(__NetBSD__)
         netdev_register_provider(&netdev_tap_class);
@@ -281,6 +297,22 @@ netdev_enumerate_types(struct sset *types)
     }
 }
 
+/*add by zq*/
+static const char *
+netdev_vport_type_from_name(const char *name)
+{
+    struct netdev_registered_class *rc;
+    const char *type;
+    CMAP_FOR_EACH (rc, cmap_node, &netdev_classes) {
+        const char *dpif_port = netdev_vport_class_get_dpif_port(rc->class);
+        if (dpif_port && !strncmp(name, dpif_port, strlen(dpif_port))) {
+            type = rc->class->type;
+            return type;
+        }
+    }
+    return NULL;
+}
+
 /* Check that the network device name is not the same as any of the registered
  * vport providers' dpif_port name (dpif_port is NULL if the vport provider
  * does not define it) or the datapath internal port name (e.g. ovs-system).
@@ -324,7 +356,11 @@ netdev_is_reserved_name(const char *name)
  * null.
  *
  * Some network devices may need to be configured (with netdev_set_config())
- * before they can be used. */
+ * before they can be used.
+ *
+ * Before opening rxqs or sending packets, '*netdevp' may need to be
+ * reconfigured (with netdev_is_reconf_required() and netdev_reconfigure()).
+ * */
 int
 netdev_open(const char *name, const char *type, struct netdev **netdevp)
     OVS_EXCLUDED(netdev_mutex)
@@ -332,10 +368,42 @@ netdev_open(const char *name, const char *type, struct netdev **netdevp)
     struct netdev *netdev;
     int error;
 
+    /*add by zq*/
+    if (!name[0]) {
+        /* Reject empty names.  This saves the providers having to do this.  At
+         * least one screwed this up: the netdev-linux "tap" implementation
+         * passed the name directly to the Linux TUNSETIFF call, which treats
+         * an empty string as a request to generate a unique name. */
+        return EINVAL;
+    }
+
     netdev_initialize();
 
     ovs_mutex_lock(&netdev_mutex);
     netdev = shash_find_data(&netdev_shash, name);
+
+    /*add by zq*/
+    if (netdev &&
+        type && type[0] && strcmp(type, netdev->netdev_class->type)) {
+
+        if (netdev->auto_classified) {
+            /* If this device was first created without a classification type,
+             * for example due to routing or tunneling code, and they keep a
+             * reference, a "classified" call to open will fail. In this case
+             * we remove the classless device, and re-add it below. We remove
+             * the netdev from the shash, and change the sequence, so owners of
+             * the old classless device can release/cleanup. */
+            if (netdev->node) {
+                shash_delete(&netdev_shash, netdev->node);
+                netdev->node = NULL;
+                netdev_change_seq_changed(netdev);
+            }
+
+            netdev = NULL;
+        } else {
+            error = EEXIST;
+        }
+    }
     if (!netdev) {
         struct netdev_registered_class *rc;
 
@@ -345,11 +413,15 @@ netdev_open(const char *name, const char *type, struct netdev **netdevp)
             if (netdev) {
                 memset(netdev, 0, sizeof *netdev);
                 netdev->netdev_class = rc->class;
+                netdev->auto_classified = type && type[0] ? false : true; /*add by zq*/
                 netdev->name = xstrdup(name);
                 netdev->change_seq = 1;
                 netdev->reconfigure_seq = seq_create();
                 netdev->last_reconfigure_seq =
                     seq_read(netdev->reconfigure_seq);
+                /*add by zq*/
+                ovsrcu_set(&netdev->flow_api, NULL);
+                netdev->hw_info.oor = false;
                 netdev->node = shash_add(&netdev_shash, name, netdev);
 
                 /* By default enable one tx and rx queue per netdev. */
@@ -417,13 +489,21 @@ netdev_set_config(struct netdev *netdev, const struct smap *args, char **errp)
 {
     if (netdev->netdev_class->set_config) {
         const struct smap no_args = SMAP_INITIALIZER(&no_args);
+        char *verbose_error = NULL;
         int error;
 
         error = netdev->netdev_class->set_config(netdev,
                                                  args ? args : &no_args);
         if (error) {
-            VLOG_WARN_BUF(errp, "%s: could not set configuration (%s)",
+            VLOG_WARN_BUF(verbose_error ? NULL : errp, "%s: could not set configuration (%s)",
                           netdev_get_name(netdev), ovs_strerror(error));
+            if (verbose_error) {
+                if (errp) {
+                    *errp = verbose_error;
+                } else {
+                    free(verbose_error);
+                }
+            }
         }
         return error;
     } else if (args && !smap_is_empty(args)) {
@@ -490,6 +570,8 @@ netdev_unref(struct netdev *dev)
     if (!--dev->ref_cnt) {
         const struct netdev_class *class = dev->netdev_class;
         struct netdev_registered_class *rc;
+
+        netdev_uninit_flow_api(dev);
 
         dev->netdev_class->destruct(dev);
 
@@ -680,6 +762,56 @@ netdev_set_tx_multiq(struct netdev *netdev, unsigned int n_txq)
     return error;
 }
 
+/*add by zq*/
+/* Check if a 'packet' is compatible with 'netdev_flags'.
+ * If a packet is incompatible, return 'false' with the 'errormsg'
+ * pointing to a reason. */
+static bool
+netdev_send_prepare_packet(const uint64_t netdev_flags,
+                           struct dp_packet *packet, char **errormsg)
+{
+    if (dp_packet_hwol_is_tso(packet)
+        && !(netdev_flags & NETDEV_TX_OFFLOAD_TCP_TSO)) {
+        /* Fall back to
+         * GSO in software. */
+        VLOG_ERR_BUF(errormsg, "No TSO support");
+        return false;
+    }
+
+    if (dp_packet_hwol_l4_mask(packet)
+        && !(netdev_flags & NETDEV_TX_OFFLOAD_TCP_CKSUM)) {
+        /* Fall back to L4 csum in software. */
+        VLOG_ERR_BUF(errormsg, "No L4 checksum support");
+        return false;
+    }
+
+    return true;
+}
+
+/* Check if each packet in 'batch' is compatible with 'netdev' features,
+ * otherwise either fall back to software implementation or drop it. */
+static void
+netdev_send_prepare_batch(const struct netdev *netdev,
+                          struct dp_packet_batch *batch)
+{
+    struct dp_packet *packet;
+    size_t i, size = dp_packet_batch_size(batch);
+
+    DP_PACKET_BATCH_REFILL_FOR_EACH (i, size, packet, batch) {
+        char *errormsg = NULL;
+
+        if (netdev_send_prepare_packet(netdev->ol_flags, packet, &errormsg)) {
+            dp_packet_batch_refill(batch, packet, i);
+        } else {
+            dp_packet_delete(packet);
+            COVERAGE_INC(netdev_send_prepare_drops);
+            VLOG_WARN_RL(&rl, "%s: Packet dropped: %s",
+                         netdev_get_name(netdev), errormsg);
+            free(errormsg);
+        }
+    }
+}
+
 /* Sends 'batch' on 'netdev'.  Returns 0 if successful (for every packet),
  * otherwise a positive errno value.  Returns EAGAIN without blocking if
  * at least one the packets cannot be queued immediately.  Returns EMSGSIZE
@@ -716,6 +848,12 @@ netdev_send(struct netdev *netdev, int qid, struct dp_packet_batch *batch,
         return EOPNOTSUPP;
     }
 
+    /*add by zq*/
+    netdev_send_prepare_batch(netdev, batch);
+    if (OVS_UNLIKELY(dp_packet_batch_is_empty(batch))) {
+        return 0;
+    }
+
     int error = netdev->netdev_class->send(netdev, qid, batch, may_steal,
                                            concurrent_txq);
     if (!error) {
@@ -730,22 +868,20 @@ netdev_send(struct netdev *netdev, int qid, struct dp_packet_batch *batch,
 void
 netdev_pop_header(struct netdev *netdev, struct dp_packet_batch *batch)
 {
-    int i, n_cnt = 0;
-    struct dp_packet **buffers = batch->packets;
+    struct dp_packet *packet;
+    size_t i, size = dp_packet_batch_size(batch);
 
-    if (!netdev->netdev_class->pop_header) {
-        dp_packet_delete_batch(batch, true);
-        batch->count = 0;
-        return;
-    }
-
-    for (i = 0; i < batch->count; i++) {
-        buffers[i] = netdev->netdev_class->pop_header(buffers[i]);
-        if (buffers[i]) {
-            buffers[n_cnt++] = buffers[i];
+    DP_PACKET_BATCH_REFILL_FOR_EACH (i, size, packet, batch) {
+            packet = netdev->netdev_class->pop_header(packet);
+            if (packet) {
+                /* Reset the offload flags if present, to avoid wrong
+                 * interpretation in the further packet processing when
+                 * recirculated.*/
+                dp_packet_reset_offload(packet);
+                pkt_metadata_init_conn(&packet->md);
+                dp_packet_batch_refill(batch, packet, i);
+            }
         }
-    }
-    batch->count = n_cnt;
 }
 
 void
@@ -777,16 +913,23 @@ netdev_push_header(const struct netdev *netdev,
                    struct dp_packet_batch *batch,
                    const struct ovs_action_push_tnl *data)
 {
-    int i;
+    struct dp_packet *packet;
+    size_t i, size = dp_packet_batch_size(batch);
 
-    if (!netdev->netdev_class->push_header) {
-        return -EINVAL;
-    }
-
-    for (i = 0; i < batch->count; i++) {
-        netdev->netdev_class->push_header(batch->packets[i], data);
-        pkt_metadata_init(&batch->packets[i]->md, u32_to_odp(data->out_port));
-    }
+    DP_PACKET_BATCH_REFILL_FOR_EACH (i, size, packet, batch) {
+            if (OVS_UNLIKELY(dp_packet_hwol_is_tso(packet)
+                             || dp_packet_hwol_l4_mask(packet))) {
+                COVERAGE_INC(netdev_push_header_drops);
+                dp_packet_delete(packet);
+                VLOG_WARN_RL(&rl, "%s: Tunneling packets with HW offload flags is "
+                                  "not supported: packet dropped",
+                             netdev_get_name(netdev));
+            } else {
+                netdev->netdev_class->push_header(netdev, packet, data);
+                pkt_metadata_init(&packet->md, data->out_port);
+                dp_packet_batch_refill(batch, packet, i);
+            }
+        }
 
     return 0;
 }
@@ -1018,6 +1161,41 @@ netdev_set_advertisements(struct netdev *netdev,
             : EOPNOTSUPP);
 }
 
+/*add by zq*/
+static const char *
+netdev_feature_to_name(uint32_t bit)
+{
+    enum netdev_features f = bit;
+
+    switch (f) {
+        case NETDEV_F_10MB_HD:    return "10MB-HD";
+        case NETDEV_F_10MB_FD:    return "10MB-FD";
+        case NETDEV_F_100MB_HD:   return "100MB-HD";
+        case NETDEV_F_100MB_FD:   return "100MB-FD";
+        case NETDEV_F_1GB_HD:     return "1GB-HD";
+        case NETDEV_F_1GB_FD:     return "1GB-FD";
+        case NETDEV_F_10GB_FD:    return "10GB-FD";
+        case NETDEV_F_40GB_FD:    return "40GB-FD";
+        case NETDEV_F_100GB_FD:   return "100GB-FD";
+        case NETDEV_F_1TB_FD:     return "1TB-FD";
+        case NETDEV_F_OTHER:      return "OTHER";
+        case NETDEV_F_COPPER:     return "COPPER";
+        case NETDEV_F_FIBER:      return "FIBER";
+        case NETDEV_F_AUTONEG:    return "AUTO_NEG";
+        case NETDEV_F_PAUSE:      return "AUTO_PAUSE";
+        case NETDEV_F_PAUSE_ASYM: return "AUTO_PAUSE_ASYM";
+    }
+
+    return NULL;
+}
+
+void
+netdev_features_format(struct ds *s, enum netdev_features features)
+{
+    ofp_print_bit_names(s, features, netdev_feature_to_name, ' ');
+    ds_put_char(s, '\n');
+}
+
 /* Assigns 'addr' as 'netdev''s IPv4 address and 'mask' as its netmask.  If
  * 'addr' is INADDR_ANY, 'netdev''s IPv4 address is cleared.  Returns a
  * positive errno value. */
@@ -1028,6 +1206,26 @@ netdev_set_in4(struct netdev *netdev, struct in_addr addr, struct in_addr mask)
             ? netdev->netdev_class->set_in4(netdev, addr, mask)
             : EOPNOTSUPP);
 }
+
+/*add by zq*/
+//static int
+//netdev_get_addresses_by_name(const char *device_name,
+//                             struct in6_addr **addrsp, int *n_addrsp)
+//{
+//    struct netdev *netdev;
+//    int error = netdev_open(device_name, NULL, &netdev);
+//    if (error) {
+//        *addrsp = NULL;
+//        *n_addrsp = 0;
+//        return error;
+//    }
+//
+//    struct in6_addr *masks;
+//    error = netdev_get_addr_list(netdev, addrsp, &masks, n_addrsp);
+//    netdev_close(netdev);
+//    free(masks);
+//    return error;
+//}
 
 /* Obtains ad IPv4 address from device name and save the address in
  * in4.  Returns 0 if successful, otherwise a positive errno value.
@@ -1787,9 +1985,14 @@ netdev_get_vports(size_t *size)
 const char *
 netdev_get_type_from_name(const char *name)
 {
-    struct netdev *dev = netdev_from_name(name);
-    const char *type = dev ? netdev_get_type(dev) : NULL;
-    netdev_close(dev);
+    struct netdev *dev;
+    const char *type;
+    type = netdev_vport_type_from_name(name);
+    if (type == NULL) {
+        dev = netdev_from_name(name);
+        type = dev ? netdev_get_type(dev) : NULL;
+        netdev_close(dev);
+    }
     return type;
 }
 

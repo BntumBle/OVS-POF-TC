@@ -111,4 +111,7 @@ uint64_t netdev_features_to_bps(enum netdev_features features,
 bool netdev_features_is_full_duplex(enum netdev_features features);
 int netdev_set_advertisements(struct netdev *, enum netdev_features advertise);
 
+/*add by zq*/
+//void netdev_features_format(struct ds *, enum netdev_features);
+
 #endif /* netdev.h */

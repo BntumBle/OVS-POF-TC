@@ -73,6 +73,7 @@ struct ovs_action_push_tnl;
 
 /* Configuration specific to tunnels. */
 struct netdev_tunnel_config {
+//    ovs_be64 in_key;
     bool in_key_present;
     bool in_key_flow;
     ovs_be64 in_key;
@@ -109,6 +110,7 @@ bool netdev_is_reserved_name(const char *name);
 int netdev_n_txq(const struct netdev *netdev);
 int netdev_n_rxq(const struct netdev *netdev);
 bool netdev_is_pmd(const struct netdev *netdev);
+bool netdev_has_tunnel_push_pop(const struct netdev *netdev); /*add by zq*/
 
 /* Open and close. */
 int netdev_open(const char *name, const char *type, struct netdev **netdevp);

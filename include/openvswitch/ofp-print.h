@@ -53,6 +53,11 @@ void ofp_print_table_features(
     const struct ofputil_table_stats *stats,
     const struct ofputil_table_stats *prev_stats);
 
+/*add by zq*/
+void ofp_print_bit_names(struct ds *, uint32_t bits,
+                         const char *(*bit_to_name)(uint32_t bit),
+                         char separator);
+
 #ifdef  __cplusplus
 }
 #endif

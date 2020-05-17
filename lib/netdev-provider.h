@@ -36,6 +36,12 @@ extern "C" {
 struct netdev_tnl_build_header_params;
 #define NETDEV_NUMA_UNSPEC OVS_NUMA_UNSPEC
 
+/*add by zq*/
+enum netdev_ol_flags {
+    NETDEV_TX_OFFLOAD_IPV4_CKSUM = 1 << 0,
+    NETDEV_TX_OFFLOAD_TCP_CKSUM = 1 << 1,
+    NETDEV_TX_OFFLOAD_TCP_TSO = 1 << 2,
+};
 /* A network device (e.g. an Ethernet device).
  *
  * Network device implementations may read these members but should not modify
@@ -45,6 +51,14 @@ struct netdev {
     char *name;                         /* Name of network device. */
     const struct netdev_class *netdev_class; /* Functions to control
                                                 this device. */
+    /*add by zq*/
+    /* If this is 'true' the user did not specify a netdev_class when
+     * opening this device, and therefore got assigned to the "system" class */
+    bool auto_classified;
+
+    /* This bitmask of the offloading features enabled by the netdev. */
+    uint64_t ol_flags;
+
 
     /* A sequence number which indicates changes in one of 'netdev''s
      * properties.   It must be nonzero so that users have a value which
@@ -302,7 +316,8 @@ struct netdev_class {
      * flow.  Push header is called for packet to build header specific to
      * a packet on actual transmit.  It uses partial header build by
      * build_header() which is passed as data. */
-    void (*push_header)(struct dp_packet *packet,
+    void (*push_header)(const struct netdev *,
+                        struct dp_packet *packet,
                         const struct ovs_action_push_tnl *data);
 
     /* Pop tunnel header from packet, build tunnel metadata and resize packet

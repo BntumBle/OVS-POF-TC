@@ -105,8 +105,10 @@ struct pkt_metadata {
     ovs_u128 ct_label;          /* Connection label. */
     union flow_in_port in_port; /* Input port. */
     struct flow_tnl tunnel;     /* Encapsulating tunnel parameters. Note that
-                                 * if 'ip_dst' == 0, the rest of the fields may
+                                 * if 'ip_dst' == 0, the r
+                                 * est of the fields may
                                  * be uninitialized. */
+    struct conn *conn;          /* add by zq:Cached conntrack connection. */
 };
 
 static inline void
@@ -118,6 +120,11 @@ pkt_metadata_init_tnl(struct pkt_metadata *md)
     memset(md, 0, offsetof(struct pkt_metadata, tunnel.metadata.opts));
 }
 
+static inline void
+pkt_metadata_init_conn(struct pkt_metadata *md)
+{
+    md->conn = NULL;
+}
 static inline void
 pkt_metadata_init(struct pkt_metadata *md, odp_port_t port)
 {
