@@ -792,7 +792,8 @@ struct dpif_op {
     } u;
 };
 
-void dpif_operate(struct dpif *, struct dpif_op **ops, size_t n_ops);
+void dpif_operate(struct dpif *, struct dpif_op **ops, size_t n_ops,
+                  enum dpif_offload_type);
 
 /* Upcalls. */
 

@@ -1410,7 +1410,7 @@ handle_upcalls(struct udpif *udpif, struct upcall *upcalls,
     for (i = 0; i < n_ops; i++) {
         opsp[n_opsp++] = &ops[i].dop;
     }
-    dpif_operate(udpif->dpif, opsp, n_opsp);
+    dpif_operate(udpif->dpif, opsp, n_opsp,DPIF_OFFLOAD_AUTO);
     for (i = 0; i < n_ops; i++) {
         struct udpif_key *ukey = ops[i].ukey;
 
@@ -2171,7 +2171,7 @@ push_dp_ops(struct udpif *udpif, struct ukey_op *ops, size_t n_ops)
     for (i = 0; i < n_ops; i++) {
         opsp[i] = &ops[i].dop;
     }
-    dpif_operate(udpif->dpif, opsp, n_ops);
+    dpif_operate(udpif->dpif, opsp, n_ops,DPIF_OFFLOAD_AUTO);
 
     for (i = 0; i < n_ops; i++) {
         struct ukey_op *op = &ops[i];

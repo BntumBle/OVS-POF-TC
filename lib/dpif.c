@@ -22,6 +22,8 @@
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
+#include <glob.h>
 
 #include "coverage.h"
 #include "dpctl.h"
@@ -50,6 +52,7 @@
 #include "valgrind.h"
 #include "openvswitch/ofp-errors.h"
 #include "openvswitch/vlog.h"
+#include "netdev-offload.h"
 
 VLOG_DEFINE_THIS_MODULE(dpif);
 
@@ -954,7 +957,7 @@ dpif_flow_get(struct dpif *dpif,
     op.u.flow_get.flow->key_len = key_len;
 
     opp = &op;
-    dpif_operate(dpif, &opp, 1);
+    dpif_operate(dpif, &opp, 1,DPIF_OFFLOAD_AUTO);
 
     return op.error;
 }
@@ -984,7 +987,7 @@ dpif_flow_put(struct dpif *dpif, enum dpif_flow_put_flags flags,
     op.u.flow_put.stats = stats;
 
     opp = &op;
-    dpif_operate(dpif, &opp, 1);
+    dpif_operate(dpif, &opp, 1,DPIF_OFFLOAD_AUTO);
 
     return op.error;
 }
@@ -1007,7 +1010,7 @@ dpif_flow_del(struct dpif *dpif,
     op.u.flow_del.terse = false;
 
     opp = &op;
-    dpif_operate(dpif, &opp, 1);
+    dpif_operate(dpif, &opp, 1,DPIF_OFFLOAD_AUTO);
 
     return op.error;
 }
@@ -1230,7 +1233,7 @@ dpif_execute(struct dpif *dpif, struct dpif_execute *execute)
         op.u.execute = *execute;
 
         opp = &op;
-        dpif_operate(dpif, &opp, 1);
+        dpif_operate(dpif, &opp, 1,DPIF_OFFLOAD_AUTO);
 
         return op.error;
     } else {
@@ -1243,8 +1246,18 @@ dpif_execute(struct dpif *dpif, struct dpif_execute *execute)
  * members documented in comments, and 0 in the 'error' member on success or a
  * positive errno on failure. */
 void
-dpif_operate(struct dpif *dpif, struct dpif_op **ops, size_t n_ops)
+dpif_operate(struct dpif *dpif, struct dpif_op **ops, size_t n_ops,
+             enum dpif_offload_type offload_type)
 {
+    if (offload_type == DPIF_OFFLOAD_ALWAYS && !netdev_is_flow_api_enabled()) {
+        size_t i;
+        for (i = 0; i < n_ops; i++) {
+            struct dpif_op *op = ops[i];
+            op->error = EINVAL;
+        }
+        return;
+    }
+
     while (n_ops > 0) {
         size_t chunk;
 
@@ -1265,7 +1278,7 @@ dpif_operate(struct dpif *dpif, struct dpif_op **ops, size_t n_ops)
              * handle itself, without help. */
             size_t i;
 
-            dpif->dpif_class->operate(dpif, ops, chunk);
+            dpif->dpif_class->operate(dpif, ops, chunk,offload_type);
 
             for (i = 0; i < chunk; i++) {
                 struct dpif_op *op = ops[i];

@@ -162,6 +162,7 @@ struct flow {
     struct eth_addr dl_dst;     /* Ethernet destination address. */
     struct eth_addr dl_src;     /* Ethernet source address. */
     ovs_be16 dl_type;           /* Ethernet frame type. */
+//    union flow_vlan_hdr vlans[FLOW_MAX_VLAN_HEADERS]; /*add by zq: VLANs */
     ovs_be16 vlan_tci;          /* If 802.1Q, TCI | VLAN_CFI; otherwise 0. */
     ovs_be32 mpls_lse[ROUND_UP(FLOW_MAX_MPLS_LABELS, 2)]; /* MPLS label stack
                                                              (with padding). */

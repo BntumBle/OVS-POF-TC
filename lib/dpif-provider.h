@@ -293,7 +293,8 @@ struct dpif_class {
      * in which they are specified, placing each operation's results in the
      * "output" members documented in comments and the 'error' member of each
      * dpif_op. */
-    void (*operate)(struct dpif *dpif, struct dpif_op **ops, size_t n_ops);
+    void (*operate)(struct dpif *dpif, struct dpif_op **ops, size_t n_ops,
+                    enum dpif_offload_type offload_type);
 
     /* Enables or disables receiving packets with dpif_recv() for 'dpif'.
      * Turning packet receive off and then back on is allowed to change Netlink
