@@ -3,6 +3,7 @@ project(OpenvSwitch_pof C)
 
 set(CMAKE_C_STANDARD 11)
 
+include_directories(.)
 include_directories(datapath)
 include_directories(datapath/linux/compat)
 include_directories(datapath/linux/compat/include)
@@ -43,6 +44,7 @@ include_directories(ovn/lib)
 include_directories(ovsdb)
 include_directories(tests)
 include_directories(vswitchd)
+include_directories(vtep)
 
 add_executable(OpenvSwitch_pof
         datapath/linux/compat/include/linux/bug.h
@@ -336,6 +338,7 @@ add_executable(OpenvSwitch_pof
         include/windows/syslog.h
         include/windows/unistd.h
         include/windows/windefs.h
+        include/odp-netlink.h
         lib/lldp/aa-structs.h
         lib/lldp/lldp-const.h
         lib/lldp/lldp-tlv.h
@@ -499,12 +502,14 @@ add_executable(OpenvSwitch_pof
         lib/netlink-socket.h
         lib/netlink.c
         lib/netlink.h
+        lib/netnsid.h
         lib/nx-match.c
         lib/nx-match.h
         lib/object-collection.c
         lib/object-collection.h
         lib/odp-execute.c
         lib/odp-execute.h
+        lib/odp-netlink.h
         lib/odp-util.c
         lib/odp-util.h
         lib/ofp-actions.c
@@ -614,6 +619,7 @@ add_executable(OpenvSwitch_pof
         lib/sset.c
         lib/sset.h
         lib/stdio.c
+        lib/stdio.h
         lib/stp.c
         lib/stp.h
         lib/stream-fd.c
@@ -628,6 +634,7 @@ add_executable(OpenvSwitch_pof
         lib/stream.c
         lib/stream.h
         lib/string.c
+        lib/string.h
         lib/strsep.c
         lib/svec.c
         lib/svec.h
@@ -668,6 +675,8 @@ add_executable(OpenvSwitch_pof
         lib/vlan-bitmap.c
         lib/vlan-bitmap.h
         lib/vlog.c
+        lib/vswitch-idl.c
+        lib/vswitch-idl.h
         ofproto/bond.c
         ofproto/bond.h
         ofproto/bundles.c
@@ -784,6 +793,8 @@ add_executable(OpenvSwitch_pof
         ovsdb/trigger.h
         python/ovs/_json.c
         tests/dpdk/ring_client.c
+        tests/idltest.c
+        tests/idltest.h
         tests/ovstest.c
         tests/ovstest.h
         tests/test-aa.c
@@ -843,4 +854,7 @@ add_executable(OpenvSwitch_pof
         vswitchd/system-stats.h
         vswitchd/xenserver.c
         vswitchd/xenserver.h
-        vtep/vtep-ctl.c lib/netnsid.h lib/odp-netlink.h config.h)
+        vtep/vtep-ctl.c
+        vtep/vtep-idl.c
+        vtep/vtep-idl.h
+        config.h)

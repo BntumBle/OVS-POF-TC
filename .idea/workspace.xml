@@ -11,9 +11,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="41b90477-9a3f-411d-a20a-31ec0f8d1c3f" name="Default" comment="modify some error of tc.c tc.h netdev-offload-tc.h netdev-offload-tc.c">
+    <list default="true" id="41b90477-9a3f-411d-a20a-31ec0f8d1c3f" name="Default" comment="modify makefile.am">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile.am" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile.am" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/dp-packet.h" beforeDir="false" afterPath="$PROJECT_DIR$/lib/dp-packet.h" afterDir="false" />
     </list>
     <list id="343c7e70-7a97-41f9-90e4-d00cdbf66b8e" name="modify Makefile.am/EXTRA_DIST to enable make" comment="modify Makefile.am/EXTRA_DIST to enable make" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -355,7 +356,8 @@
       <workItem from="1589100127650" duration="5559000" />
       <workItem from="1589106102377" duration="17144000" />
       <workItem from="1589679880739" duration="26192000" />
-      <workItem from="1590196578032" duration="9834000" />
+      <workItem from="1590196578032" duration="9915000" />
+      <workItem from="1590207419182" duration="686000" />
     </task>
     <task id="LOCAL-00001" summary="commit test">
       <created>1586693419153</created>
@@ -420,7 +422,14 @@
       <option name="project" value="LOCAL" />
       <updated>1590205506139</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="modify makefile.am">
+      <created>1590206447589</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1590206447589</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -461,6 +470,7 @@
     <MESSAGE value="modify dpif-netdev.c dpif.c dpif.h dpif_provider.h dpctl.c dpctl.h" />
     <MESSAGE value="modify netdev.c netdev.h netdev-provider.h" />
     <MESSAGE value="modify some error of tc.c tc.h netdev-offload-tc.h netdev-offload-tc.c" />
-    <option name="LAST_COMMIT_MESSAGE" value="modify some error of tc.c tc.h netdev-offload-tc.h netdev-offload-tc.c" />
+    <MESSAGE value="modify makefile.am" />
+    <option name="LAST_COMMIT_MESSAGE" value="modify makefile.am" />
   </component>
 </project>

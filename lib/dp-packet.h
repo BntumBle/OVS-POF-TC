@@ -627,26 +627,26 @@ dp_packet_hwol_set_tcp_seg(struct dp_packet *b OVS_UNUSED)
 {
 }
 
-/* Returns the RSS hash of the packet 'p'.  Note that the returned value is
- * correct only if 'dp_packet_rss_valid(p)' returns true */
-static inline uint32_t
-dp_packet_get_rss_hash(const struct dp_packet *p)
-{
-    return p->rss_hash;
-}
+//* Returns the RSS hash of the packet 'p'.  Note that the returned value is
+// * correct only if 'dp_packet_rss_valid(p)' returns true */
+//static inline uint32_t
+//dp_packet_get_rss_hash(const struct dp_packet *p)
+//{
+//    return p->rss_hash;
+//}
+//
+//static inline void
+//dp_packet_set_rss_hash(struct dp_packet *p, uint32_t hash)
+//{
+//    p->rss_hash = hash;
+//    p->ol_flags |= DP_PACKET_OL_RSS_HASH_MASK;
+//}
 
-static inline void
-dp_packet_set_rss_hash(struct dp_packet *p, uint32_t hash)
-{
-    p->rss_hash = hash;
-    p->ol_flags |= DP_PACKET_OL_RSS_HASH_MASK;
-}
-
-static inline bool
-dp_packet_rss_valid(const struct dp_packet *p)
-{
-    return p->ol_flags & DP_PACKET_OL_RSS_HASH_MASK;
-}
+//static inline bool
+//dp_packet_rss_valid(const struct dp_packet *p)
+//{
+//    return p->ol_flags & DP_PACKET_OL_RSS_HASH_MASK;
+//}
 
 static inline void
 dp_packet_reset_offload(struct dp_packet *p)
