@@ -133,7 +133,22 @@ EXTRA_DIST = \
 	$(MAN_FRAGMENTS) \
 	$(MAN_ROOTS) \
 	Vagrantfile \
-	Vagrantfile-FreeBSD
+	Vagrantfile-FreeBSD\
+	lib/netdev-offload.c\
+	lib/netdev-offload-provider.h\
+	lib/netdev-offload-tc.h\
+	lib/netdev-offload-tc.c\
+	lib/tc.h\
+	lib/tc.c\
+	include/linux/netlink.h \
+    include/linux/netfilter/nf_conntrack_sctp.h \
+    include/linux/pkt_cls.h \
+    include/linux/tc_act/tc_mpls.h \
+    include/linux/tc_act/tc_pedit.h \
+    include/linux/tc_act/tc_skbedit.h \
+    include/linux/tc_act/tc_tunnel_key.h \
+    include/linux/tc_act/tc_vlan.h \
+    include/linux/tc_act/tc_ct.h
 bin_PROGRAMS =
 sbin_PROGRAMS =
 bin_SCRIPTS =
