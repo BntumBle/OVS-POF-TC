@@ -951,4 +951,4 @@ dp_packet_batch_reset_cutlen(struct dp_packet_batch *pktb)
 }
 #endif
 
-#endif /* dp-packet.h */
+/* dp-packet.h */
