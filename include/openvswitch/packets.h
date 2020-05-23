@@ -61,4 +61,32 @@ union flow_in_port {
     ofp_port_t ofp_port;
 };
 
+/*add by zq*/
+union flow_vlan_hdr {
+    ovs_be32 qtag;
+    struct {
+        ovs_be16 tpid;  /* ETH_TYPE_VLAN_DOT1Q or ETH_TYPE_DOT1AD */
+        ovs_be16 tci;
+    };
+};
+
+struct ovs_key_nsh {
+    uint8_t flags;
+    uint8_t ttl;
+    uint8_t mdtype;
+    uint8_t np;
+    ovs_be32 path_hdr;
+    ovs_be32 context[4];
+};
+
+/* NSH flags */
+#define FLOW_NSH_F_OAM (1 << 0)
+#define FLOW_NSH_F_CTX (1 << 1)
+
+#define FLOW_NSH_F_MASK ((1 << 2) - 1)
+
+#ifdef __cplusplus
+}
+#endif
+
 #endif /* packets.h */

@@ -64,6 +64,17 @@ const char *flow_tun_flag_to_string(uint32_t flags);
 /* Maximum number of supported MPLS labels. */
 #define FLOW_MAX_MPLS_LABELS 3
 
+/*add by zq*/
+/* Maximum number of supported VLAN headers.
+ *
+ * We require this to be a multiple of 2 so that vlans[] in struct flow is a
+ * multiple of 64 bits. */
+#define FLOW_MAX_VLAN_HEADERS 2
+BUILD_ASSERT_DECL(FLOW_MAX_VLAN_HEADERS % 2 == 0);
+
+/* Legacy maximum VLAN headers */
+#define LEGACY_MAX_VLAN_HEADERS 1
+
 /* tsf: to store the In-Band-Telemetry data*/
 struct pof_metadata {
 	uint8_t in_port;            // input_port, 8 bits in pof, 32 bits in openflow
@@ -151,6 +162,7 @@ struct flow {
     uint16_t ct_state;          /* Connection tracking state. */
     uint16_t ct_zone;           /* Connection tracking zone. */
     uint32_t ct_mark;           /* Connection mark.*/
+    ovs_be32 packet_type;       /* add by zq:OpenFlow packet type. */
     uint8_t have_sel_group_action;  /* tsf: Used to tell packets to execute select Group action*/
     uint8_t sel_int_action;     /* tsf: Used to tell packets to execute INT add_field action. */
     uint8_t pad1[2];            /* Pad to 64 bits. */
@@ -162,7 +174,7 @@ struct flow {
     struct eth_addr dl_dst;     /* Ethernet destination address. */
     struct eth_addr dl_src;     /* Ethernet source address. */
     ovs_be16 dl_type;           /* Ethernet frame type. */
-//    union flow_vlan_hdr vlans[FLOW_MAX_VLAN_HEADERS]; /*add by zq: VLANs */
+    union flow_vlan_hdr vlans[FLOW_MAX_VLAN_HEADERS]; /*add by zq: VLANs */
     ovs_be16 vlan_tci;          /* If 802.1Q, TCI | VLAN_CFI; otherwise 0. */
     ovs_be32 mpls_lse[ROUND_UP(FLOW_MAX_MPLS_LABELS, 2)]; /* MPLS label stack
                                                              (with padding). */

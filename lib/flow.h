@@ -88,8 +88,16 @@ static inline bool flow_equal(const struct flow *, const struct flow *);
 static inline size_t flow_hash(const struct flow *, uint32_t basis);
 
 void flow_set_dl_vlan(struct flow *, ovs_be16 vid);
+void flow_fix_vlan_tpid(struct flow *);
 void flow_set_vlan_vid(struct flow *, ovs_be16 vid);
 void flow_set_vlan_pcp(struct flow *, uint8_t pcp);
+
+void flow_limit_vlans(int vlan_limit);
+int flow_count_vlan_headers(const struct flow *);
+void flow_skip_common_vlan_headers(const struct flow *a, int *p_an,
+                                   const struct flow *b, int *p_bn);
+void flow_pop_vlan(struct flow*, struct flow_wildcards*);
+void flow_push_vlan_uninit(struct flow*, struct flow_wildcards*);
 
 int flow_count_mpls_labels(const struct flow *, struct flow_wildcards *);
 int flow_count_common_mpls_labels(const struct flow *a, int an,

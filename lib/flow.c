@@ -2114,6 +2114,105 @@ flow_count_mpls_labels(const struct flow *flow, struct flow_wildcards *wc)
     }
 }
 
+/*add by zq*/
+/* Sets the VLAN header TPID, which must be either ETH_TYPE_VLAN_8021Q or
+ * ETH_TYPE_VLAN_8021AD. */
+void
+flow_fix_vlan_tpid(struct flow *flow)
+{
+    if (flow->vlans[0].tpid == htons(0) && flow->vlans[0].tci != 0) {
+        flow->vlans[0].tpid = htons(ETH_TYPE_VLAN_8021Q);
+    }
+}
+
+/* Sets the VLAN VID that 'flow' matches to 'vid', which is interpreted as an
+ * OpenFlow 1.2 "vlan_vid" value, that is, the low 13 bits of 'vlan_tci' (VID
+ * plus CFI). */
+void
+flow_set_vlan_vid(struct flow *flow, ovs_be16 vid)
+{
+    ovs_be16 mask = htons(VLAN_VID_MASK | VLAN_CFI);
+    flow->vlans[0].tci &= ~mask;
+    flow->vlans[0].tci |= vid & mask;
+}
+
+/* Sets the VLAN PCP that 'flow' matches to 'pcp', which should be in the
+ * range 0...7.
+ *
+ * This function has no effect on the VLAN ID that 'flow' matches.
+ *
+ * After calling this function, 'flow' will not match packets without a VLAN
+ * header. */
+void
+flow_set_vlan_pcp(struct flow *flow, uint8_t pcp, int id)
+{
+    pcp &= 0x07;
+    flow->vlans[id].tci &= ~htons(VLAN_PCP_MASK);
+    flow->vlans[id].tci |= htons((pcp << VLAN_PCP_SHIFT) | VLAN_CFI);
+}
+
+/* Counts the number of VLAN headers. */
+int
+flow_count_vlan_headers(const struct flow *flow)
+{
+    int i;
+
+    for (i = 0; i < FLOW_MAX_VLAN_HEADERS; i++) {
+        if (!(flow->vlans[i].tci & htons(VLAN_CFI))) {
+            break;
+        }
+    }
+    return i;
+}
+
+/* Given '*p_an' and '*p_bn' pointing to one past the last VLAN header of
+ * 'a' and 'b' respectively, skip common VLANs so that they point to the
+ * first different VLAN counting from bottom. */
+void
+flow_skip_common_vlan_headers(const struct flow *a, int *p_an,
+                              const struct flow *b, int *p_bn)
+{
+    int an = *p_an, bn = *p_bn;
+
+    for (an--, bn--; an >= 0 && bn >= 0; an--, bn--) {
+        if (a->vlans[an].qtag != b->vlans[bn].qtag) {
+            break;
+        }
+    }
+    *p_an = an;
+    *p_bn = bn;
+}
+
+void
+flow_pop_vlan(struct flow *flow, struct flow_wildcards *wc)
+{
+    int n = flow_count_vlan_headers(flow);
+    if (n > 1) {
+        if (wc) {
+            memset(&wc->masks.vlans[1], 0xff,
+                   sizeof(union flow_vlan_hdr) * (n - 1));
+        }
+        memmove(&flow->vlans[0], &flow->vlans[1],
+                sizeof(union flow_vlan_hdr) * (n - 1));
+    }
+    if (n > 0) {
+        memset(&flow->vlans[n - 1], 0, sizeof(union flow_vlan_hdr));
+    }
+}
+
+void
+flow_push_vlan_uninit(struct flow *flow, struct flow_wildcards *wc)
+{
+    if (wc) {
+        int n = flow_count_vlan_headers(flow);
+        if (n) {
+            memset(wc->masks.vlans, 0xff, sizeof(union flow_vlan_hdr) * n);
+        }
+    }
+    memmove(&flow->vlans[1], &flow->vlans[0],
+            sizeof(union flow_vlan_hdr) * (FLOW_MAX_VLAN_HEADERS - 1));
+    memset(&flow->vlans[0], 0, sizeof(union flow_vlan_hdr));
+}
 /* Returns the number consecutive of MPLS LSEs, starting at the
  * innermost LSE, that are common in 'a' and 'b'.
  *

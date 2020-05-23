@@ -216,6 +216,29 @@ put_32aligned_u64(ovs_32aligned_u64 *x, uint64_t value)
     x->lo = value;
 }
 
+/*add by zq*/
+/* Returns the value in 'x'. */
+static inline ovs_u128
+get_32aligned_u128(const ovs_32aligned_u128 *x)
+{
+    ovs_u128 u;
+    u.u32[0] = x->u32[0];
+    u.u32[1] = x->u32[1];
+    u.u32[2] = x->u32[2];
+    u.u32[3] = x->u32[3];
+    return u;
+}
+
+/* Stores 'value' in 'x'. */
+static inline void
+put_32aligned_u128(ovs_32aligned_u128 *x, ovs_u128 value)
+{
+    x->u32[0] = value.u32[0];
+    x->u32[1] = value.u32[1];
+    x->u32[2] = value.u32[2];
+    x->u32[3] = value.u32[3];
+}
+
 #ifndef __CHECKER__
 /* Returns the value of 'x'. */
 static inline ovs_be32

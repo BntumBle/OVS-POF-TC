@@ -124,7 +124,8 @@ void match_set_tun_tos(struct match *match, uint8_t tos);
 void match_set_tun_tos_masked(struct match *match, uint8_t tos, uint8_t mask);
 void match_set_tun_flags(struct match *match, uint16_t flags);
 void match_set_tun_flags_masked(struct match *match, uint16_t flags, uint16_t mask);
-void match_set_tun_gbp_id_masked(struct match *match, ovs_be16 gbp_id, ovs_be16 mask);
+void match_set_tun_tp_dst(struct match *match, ovs_be16 tp_dst);
+void match_set_tun_tp_dst_masked(struct match *match, ovs_be16 port, ovs_be16 mask);void match_set_tun_gbp_id_masked(struct match *match, ovs_be16 gbp_id, ovs_be16 mask);
 void match_set_tun_gbp_id(struct match *match, ovs_be16 gbp_id);
 void match_set_tun_gbp_flags_masked(struct match *match, uint8_t flags, uint8_t mask);
 void match_set_tun_gbp_flags(struct match *match, uint8_t flags);
@@ -134,6 +135,8 @@ void match_set_pkt_mark_masked(struct match *, uint32_t pkt_mark, uint32_t mask)
 void match_set_ct_state(struct match *, uint32_t ct_state);
 void match_set_ct_state_masked(struct match *, uint32_t ct_state, uint32_t mask);
 void match_set_ct_zone(struct match *, uint16_t ct_zone);
+void match_set_ct_zone_masked(struct match *match, uint16_t ct_zone,
+                              uint16_t mask);
 void match_set_ct_mark(struct match *, uint32_t ct_mark);
 void match_set_ct_mark_masked(struct match *, uint32_t ct_mark, uint32_t mask);
 void match_set_ct_label(struct match *, ovs_u128 ct_label);
@@ -179,6 +182,8 @@ void match_set_nw_dst_masked(struct match *, ovs_be32 ip, ovs_be32 mask);
 void match_set_nw_dscp(struct match *, uint8_t);
 void match_set_nw_ecn(struct match *, uint8_t);
 void match_set_nw_ttl(struct match *, uint8_t);
+void match_set_nw_ttl_masked(struct match *, uint8_t nw_ttl, uint8_t mask);
+void match_set_nw_tos_masked(struct match *, uint8_t nw_tos, uint8_t mask);
 void match_set_nw_frag(struct match *, uint8_t nw_frag);
 void match_set_nw_frag_masked(struct match *, uint8_t nw_frag, uint8_t mask);
 void match_set_icmp_type(struct match *, uint8_t);

@@ -67,6 +67,7 @@ void nl_msg_put_u8(struct ofpbuf *, uint16_t type, uint8_t value);
 void nl_msg_put_u16(struct ofpbuf *, uint16_t type, uint16_t value);
 void nl_msg_put_u32(struct ofpbuf *, uint16_t type, uint32_t value);
 void nl_msg_put_u64(struct ofpbuf *, uint16_t type, uint64_t value);
+void nl_msg_put_u128(struct ofpbuf *, uint16_t type, ovs_u128 value);
 void nl_msg_put_be16(struct ofpbuf *, uint16_t type, ovs_be16 value);
 void nl_msg_put_be32(struct ofpbuf *, uint16_t type, ovs_be32 value);
 void nl_msg_put_be64(struct ofpbuf *, uint16_t type, ovs_be64 value);
@@ -132,6 +133,8 @@ enum nl_attr_type
     NL_A_BE32 = NL_A_U32,
     NL_A_U64,
     NL_A_BE64 = NL_A_U64,
+    NL_A_U128,
+    NL_A_BE128 = NL_A_U128,
     NL_A_STRING,
     NL_A_FLAG,
     NL_A_IPV6,
@@ -193,6 +196,7 @@ uint8_t nl_attr_get_u8(const struct nlattr *);
 uint16_t nl_attr_get_u16(const struct nlattr *);
 uint32_t nl_attr_get_u32(const struct nlattr *);
 uint64_t nl_attr_get_u64(const struct nlattr *);
+ovs_u128 nl_attr_get_u128(const struct nlattr *); /*add by zq*/
 ovs_be16 nl_attr_get_be16(const struct nlattr *);
 ovs_be32 nl_attr_get_be32(const struct nlattr *);
 ovs_be64 nl_attr_get_be64(const struct nlattr *);

@@ -17,6 +17,8 @@
 #include <linux/gen_stats.h>
 #include <net/if.h>
 #include <unistd.h>
+#include <stddef.h>
+#include <glob.h>
 
 #include "byte-order.h"
 #include "netlink-socket.h"

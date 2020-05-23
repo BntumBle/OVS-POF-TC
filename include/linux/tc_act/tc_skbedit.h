@@ -1,76 +1,61 @@
 //
 // Created by zq on 2020/5/10.
 //
-#ifndef __LINUX_TC_ACT_TC_PEDIT_WRAPPER_H
-#define __LINUX_TC_ACT_TC_PEDIT_WRAPPER_H 1
+#ifndef __LINUX_TC_ACT_TC_SKBEDIT_WRAPPER_H
+#define __LINUX_TC_ACT_TC_SKBEDIT_WRAPPER_H 1
 
-#if defined(__KERNEL__) || defined(HAVE_TCA_PEDIT_KEY_EX_HDR_TYPE_UDP)
-#include_next <linux/tc_act/tc_pedit.h>
+#if defined(__KERNEL__) || defined(HAVE_TCA_SKBEDIT_FLAGS)
+#include_next <linux/tc_act/tc_skbedit.h>
 #else
 
-#include <linux/types.h>
+/*
+ * Copyright (c) 2008, Intel Corporation.
+ *
+ * This program is free software; you can redistribute it and/or modify it
+ * under the terms and conditions of the GNU General Public License,
+ * version 2, as published by the Free Software Foundation.
+ *
+ * This program is distributed in the hope it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+ * more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 59 Temple
+ * Place - Suite 330, Boston, MA 02111-1307 USA.
+ *
+ * Author: Alexander Duyck <alexander.h.duyck@intel.com>
+ */
+
 #include <linux/pkt_cls.h>
 
-#define TCA_ACT_PEDIT 7
+#define SKBEDIT_F_PRIORITY		0x1
+#define SKBEDIT_F_QUEUE_MAPPING		0x2
+#define SKBEDIT_F_MARK			0x4
+#define SKBEDIT_F_PTYPE			0x8
+#define SKBEDIT_F_MASK			0x10
+#define SKBEDIT_F_INHERITDSFIELD	0x20
+
+struct tc_skbedit {
+    tc_gen;
+};
 
 enum {
-	TCA_PEDIT_UNSPEC,
-	TCA_PEDIT_TM,
-	TCA_PEDIT_PARMS,
-	TCA_PEDIT_PAD,
-	TCA_PEDIT_PARMS_EX,
-	TCA_PEDIT_KEYS_EX,
-	TCA_PEDIT_KEY_EX,
-	__TCA_PEDIT_MAX
+    TCA_SKBEDIT_UNSPEC,
+    TCA_SKBEDIT_TM,
+    TCA_SKBEDIT_PARMS,
+    TCA_SKBEDIT_PRIORITY,
+    TCA_SKBEDIT_QUEUE_MAPPING,
+    TCA_SKBEDIT_MARK,
+    TCA_SKBEDIT_PAD,
+    TCA_SKBEDIT_PTYPE,
+    TCA_SKBEDIT_MASK,
+    TCA_SKBEDIT_FLAGS,
+    __TCA_SKBEDIT_MAX
 };
-#define TCA_PEDIT_MAX (__TCA_PEDIT_MAX - 1)
+#define TCA_SKBEDIT_MAX (__TCA_SKBEDIT_MAX - 1)
 
-enum {
-	TCA_PEDIT_KEY_EX_HTYPE = 1,
-	TCA_PEDIT_KEY_EX_CMD = 2,
-	__TCA_PEDIT_KEY_EX_MAX
-};
-#define TCA_PEDIT_KEY_EX_MAX (__TCA_PEDIT_KEY_EX_MAX - 1)
+#endif /* __KERNEL__ || HAVE_TCA_SKBEDIT_FLAGS */
 
- /* TCA_PEDIT_KEY_EX_HDR_TYPE_NETWROK is a special case for legacy users. It
-  * means no specific header type - offset is relative to the network layer
-  */
-enum pedit_header_type {
-	TCA_PEDIT_KEY_EX_HDR_TYPE_NETWORK = 0,
-	TCA_PEDIT_KEY_EX_HDR_TYPE_ETH = 1,
-	TCA_PEDIT_KEY_EX_HDR_TYPE_IP4 = 2,
-	TCA_PEDIT_KEY_EX_HDR_TYPE_IP6 = 3,
-	TCA_PEDIT_KEY_EX_HDR_TYPE_TCP = 4,
-	TCA_PEDIT_KEY_EX_HDR_TYPE_UDP = 5,
-	__PEDIT_HDR_TYPE_MAX,
-};
-#define TCA_PEDIT_HDR_TYPE_MAX (__PEDIT_HDR_TYPE_MAX - 1)
-
-enum pedit_cmd {
-	TCA_PEDIT_KEY_EX_CMD_SET = 0,
-	TCA_PEDIT_KEY_EX_CMD_ADD = 1,
-	__PEDIT_CMD_MAX,
-};
-#define TCA_PEDIT_CMD_MAX (__PEDIT_CMD_MAX - 1)
-
-struct tc_pedit_key {
-	__u32           mask;  /* AND */
-	__u32           val;   /*XOR */
-	__u32           off;  /*offset */
-	__u32           at;
-	__u32           offmask;
-	__u32           shift;
-};
-
-struct tc_pedit_sel {
-	tc_gen;
-	unsigned char           nkeys;
-	unsigned char           flags;
-	struct tc_pedit_key     keys[0];
-};
-#define tc_pedit tc_pedit_sel
-
-#endif /* __KERNEL__ || HAVE_TCA_PEDIT_KEY_EX_HDR_TYPE_UDP */
-
-#endif /* __LINUX_TC_ACT_TC_PEDIT_WRAPPER_H */
+#endif /* __LINUX_TC_ACT_TC_SKBEDIT_WRAPPER_H */
 

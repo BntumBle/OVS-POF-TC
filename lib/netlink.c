@@ -285,6 +285,15 @@ nl_msg_put_u64(struct ofpbuf *msg, uint16_t type, uint64_t value)
     nl_msg_put_unspec(msg, type, &value, sizeof value);
 }
 
+/*add by zq*/
+/* Appends a Netlink attribute of the given 'type' and the given 128-bit host
+ * byte order 'value' to 'msg'. */
+void
+nl_msg_put_u128(struct ofpbuf *msg, uint16_t type, ovs_u128 value)
+{
+    nl_msg_put_unspec(msg, type, &value, sizeof value);
+}
+
 /* Appends a Netlink attribute of the given 'type' and the given 16-bit network
  * byte order 'value' to 'msg'. */
 void
@@ -594,6 +603,17 @@ nl_attr_get_u64(const struct nlattr *nla)
 {
     const ovs_32aligned_u64 *x = nl_attr_get_unspec(nla, sizeof *x);
     return get_32aligned_u64(x);
+}
+
+/*add by zq*/
+/* Returns the 128-bit host byte order value in 'nla''s payload.
+ *
+ * Asserts that 'nla''s payload is at least 16 bytes long. */
+ovs_u128
+nl_attr_get_u128(const struct nlattr *nla)
+{
+    const ovs_32aligned_u128 *x = nl_attr_get_unspec(nla, sizeof *x);
+    return get_32aligned_u128(x);
 }
 
 /* Returns the 16-bit network byte order value in 'nla''s payload.

@@ -394,6 +394,19 @@ match_set_tun_flags_masked(struct match *match, uint16_t flags, uint16_t mask)
     match->flow.tunnel.flags = flags & mask;
 }
 
+/*add bu zq*/
+void
+match_set_tun_tp_dst(struct match *match, ovs_be16 tp_dst)
+{
+    match_set_tun_tp_dst_masked(match, tp_dst, OVS_BE16_MAX);
+}
+
+void
+match_set_tun_tp_dst_masked(struct match *match, ovs_be16 port, ovs_be16 mask)
+{
+    match->wc.masks.tunnel.tp_dst = mask;
+    match->flow.tunnel.tp_dst = port & mask;
+}
 void
 match_set_tun_gbp_id_masked(struct match *match, ovs_be16 gbp_id, ovs_be16 mask)
 {
@@ -460,11 +473,19 @@ match_set_ct_state_masked(struct match *match, uint32_t ct_state, uint32_t mask)
     match->wc.masks.ct_state = mask & UINT16_MAX;
 }
 
+/*add by zq*/
 void
 match_set_ct_zone(struct match *match, uint16_t ct_zone)
 {
     match->flow.ct_zone = ct_zone;
     match->wc.masks.ct_zone = UINT16_MAX;
+}
+
+void
+match_set_ct_zone_masked(struct match *match, uint16_t ct_zone, uint16_t mask)
+{
+    match->flow.ct_zone = ct_zone & mask;
+    match->wc.masks.ct_zone = mask;
 }
 
 void
@@ -845,6 +866,21 @@ match_set_nw_ttl(struct match *match, uint8_t nw_ttl)
 {
     match->wc.masks.nw_ttl = UINT8_MAX;
     match->flow.nw_ttl = nw_ttl;
+}
+
+/*add by zq*/
+void
+match_set_nw_tos_masked(struct match *match, uint8_t nw_tos, uint8_t mask)
+{
+    match->flow.nw_tos = nw_tos & mask;
+    match->wc.masks.nw_tos = mask;
+}
+
+void
+match_set_nw_ttl_masked(struct match *match, uint8_t nw_ttl, uint8_t mask)
+{
+    match->flow.nw_ttl = nw_ttl & mask;
+    match->wc.masks.nw_ttl = mask;
 }
 
 void

@@ -843,4 +843,4 @@ add_executable(OpenvSwitch_pof
         vswitchd/system-stats.h
         vswitchd/xenserver.c
         vswitchd/xenserver.h
-        vtep/vtep-ctl.c lib/netnsid.h lib/odp-netlink.h)
+        vtep/vtep-ctl.c lib/netnsid.h lib/odp-netlink.h config.h)
