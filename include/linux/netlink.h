@@ -21,10 +21,10 @@
  *  implies we are selecting bit 2 and we want to set its value to 1.
  *
  */
-struct nla_bitfield32 {
-    __u32 value;
-    __u32 selector;
-};
+//struct nla_bitfield32 {
+//    __u32 value;
+//    __u32 selector;
+//};
 
 #endif /* !__KERNEL__ && !HAVE_NLA_BITFIELD32 */
 

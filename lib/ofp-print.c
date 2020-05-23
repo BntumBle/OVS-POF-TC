@@ -265,7 +265,7 @@ compare_ports(const void *a_, const void *b_)
     return ap < bp ? -1 : ap > bp;
 }
 
-static void
+void
 ofp_print_bit_names(struct ds *string, uint32_t bits,
                     const char *(*bit_to_name)(uint32_t bit),
                     char separator)
